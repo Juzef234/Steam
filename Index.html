@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Steam</title>
+<style>
+  body { margin:0; height:100vh; background:#111; overflow:hidden; display:flex; justify-content:center; align-items:center; }
+  
+  /* Pełnoekranowy obrazek startowy */
+  #thumbnail {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    background:#000 url('https://cdn.discordapp.com/attachments/1209225024922456104/1410988861298835639/image.png?ex=68b30547&is=68b1b3c7&hm=9914a809196b98d364563fe6980067845ab14f4737647c1a9d3a27a14cba3ab6&') center 10%/cover no-repeat;
+    cursor:pointer;
+    z-index:9999;
+  }
+
+  /* latające okienka */
+  .float {
+    position:fixed;
+    width:270px; 
+    height:480px;
+    background:#000;
+    border-radius:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+    overflow:hidden;
+    z-index:9998;
+  }
+  .float video {
+    width:100%; 
+    height:100%;
+    display:block; border:0; 
+    object-fit:cover;
+  }
+</style>
+</head>
+<body>
+
+<div id="thumbnail" title="Kliknij, aby uruchomić filmik!"></div>
+
+<script>
+(function(){
+  const src = "https://cdn.discordapp.com/attachments/1209225024922456104/1410986196993052804/Untitled_design.mp4?ex=68b302cc&is=68b1b14c&hm=9fee2087e6858e08883456827f05772b6f54a790cf66886c966b7dfeb870d3ea&";
+
+  function makeFloating(x=100,y=100){
+    const flo = document.createElement('div');
+    flo.className = 'float';
+    flo.style.left = x+"px";
+    flo.style.top = y+"px";
+
+    flo.innerHTML = `<video src="${src}" autoplay loop playsinline></video>`;
+
+    document.body.appendChild(flo);
+    const vid = flo.querySelector('video');
+
+    // ruch losowy szybciej
+    let vx = (Math.random()*8+4) * (Math.random()<0.5?-1:1); // szybciej niż wcześniej
+    let vy = (Math.random()*6+3) * (Math.random()<0.5?-1:1);
+    function tick(){
+      const rect = flo.getBoundingClientRect();
+      const w = flo.offsetWidth, h = flo.offsetHeight;
+      const vw = window.innerWidth, vh = window.innerHeight;
+
+      let x = rect.left + vx;
+      let y = rect.top + vy;
+
+      if (x <= 0 || x + w >= vw) vx = -vx;
+      if (y <= 0 || y + h >= vh) vy = -vy;
+
+      flo.style.left = (rect.left + vx) + 'px';
+      flo.style.top = (rect.top + vy) + 'px';
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    return vid;
+  }
+
+  const thumbnail = document.getElementById('thumbnail');
+
+  thumbnail.addEventListener('click', ()=>{
+    thumbnail.remove();
+
+    const vid = makeFloating(100,100);
+    vid.muted = false;
+    vid.volume = 1.0;
+    vid.play().catch(()=>{});
+
+    setInterval(()=>{
+      const x = Math.random()* (window.innerWidth-280);
+      const y = Math.random()* (window.innerHeight-500);
+      const newVid = makeFloating(x,y);
+      newVid.muted = false;
+      newVid.volume = 1.0;
+      newVid.play().catch(()=>{});
+    },3000);
+  });
+})();
+</script>
+
+</body>
+</html>
